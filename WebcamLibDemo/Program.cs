@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CamToolDemo
+namespace WebcamLibDemo
 {
     /// <summary>
     /// Defines the entry point of the application.

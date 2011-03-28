@@ -4,9 +4,9 @@ using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
-using CamTool;
+using WebcamLib;
 
-namespace CamToolDemo
+namespace WebcamLibDemo
 {
     /// <summary>
     /// Summary description for Form1.

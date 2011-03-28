@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CamTool
+namespace WebcamLib
 {
     /// <summary>
     /// Represents the video format of a webcam.

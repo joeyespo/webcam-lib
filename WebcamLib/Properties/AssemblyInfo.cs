@@ -1,16 +1,17 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 //
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("CamToolDemo")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("WebcamLib")]
+[assembly: AssemblyDescription("Provides a simplified API to interact with a webcam device.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyProduct("WebcamLib")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
@@ -26,4 +27,5 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.1.*")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: ComVisibleAttribute(false)]

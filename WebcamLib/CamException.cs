@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 
-namespace CamTool
+namespace WebcamLib
 {
     /// <summary>
     /// Represents errors that occur when interfacing with the webcam device.

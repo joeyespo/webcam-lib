@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Drawing;
 
-namespace CamTool
+namespace WebcamLib
 {
     /// <summary>
     /// Handles webcam frame updates.

@@ -1,4 +1,4 @@
-namespace CamToolDemo
+namespace WebcamLibDemo
 {
     partial class MainForm
     {
@@ -25,6 +25,7 @@ namespace CamToolDemo
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.previewPictureBox = new System.Windows.Forms.PictureBox();
             this.captureButton = new System.Windows.Forms.Button();
             this.formatButton = new System.Windows.Forms.Button();
@@ -86,7 +87,7 @@ namespace CamToolDemo
             this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelError.Location = new System.Drawing.Point(12, 12);
             this.labelError.Name = "labelError";
-            this.labelError.Size = new System.Drawing.Size(636, 476);
+            this.labelError.Size = new System.Drawing.Size(632, 472);
             this.labelError.TabIndex = 3;
             this.labelError.Text = "Error";
             this.labelError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -102,9 +103,10 @@ namespace CamToolDemo
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.captureButton);
             this.Controls.Add(this.previewPictureBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CamTool Tests";
+            this.Text = "WebcamLib Tests";
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.previewPictureBox)).EndInit();
             this.ResumeLayout(false);

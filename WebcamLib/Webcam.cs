@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace CamTool
+namespace WebcamLib
 {
     /// <summary>
     /// Represents a webcam.
@@ -15,7 +15,7 @@ namespace CamTool
         #region Class Construction
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CamTool"/> class.
+        /// Initializes a new instance of the <see cref="Webcam"/> class.
         /// </summary>
         /// <param name="Owner">The owner window.</param>
         public Webcam(IWin32Window Owner)
@@ -23,7 +23,7 @@ namespace CamTool
         {
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="CamTool"/> class.
+        /// Initializes a new instance of the <see cref="Webcam"/> class.
         /// </summary>
         /// <param name="Owner">The owner window.</param>
         /// <param name="PreviewProc">The method to call when new frames are taken.</param>
@@ -32,7 +32,7 @@ namespace CamTool
         {
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="CamTool"/> class.
+        /// Initializes a new instance of the <see cref="Webcam"/> class.
         /// </summary>
         /// <param name="Owner">The owner window.</param>
         /// <param name="PreviewProc">The method to call when new frames are taken.</param>
@@ -268,7 +268,7 @@ namespace CamTool
         /// </summary>
         private IntPtr CreatePreviewWindow()
         {
-            return Win32.CapCreateCaptureWindow("CamTool Window", 0x00000000, 0, 0, 320, 240, ownerWindow.Handle.ToInt32(), 0);
+            return Win32.CapCreateCaptureWindow("WebcamLib Window", 0x00000000, 0, 0, 320, 240, ownerWindow.Handle.ToInt32(), 0);
         }
 
         /// <summary>

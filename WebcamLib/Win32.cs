@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CamTool
+namespace WebcamLib
 {
     /// <summary>
     /// Provides fields and methods for interfacing with Win32.
