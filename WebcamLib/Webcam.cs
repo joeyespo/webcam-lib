@@ -329,6 +329,15 @@ namespace WebcamLib
         /// <summary>
         /// Called on each frame update.
         /// </summary>
+        /// <remarks>
+        /// In order to draw on the resulting image, it must first be copied. This is because setting the bitmap data
+        /// pointer directly and rotating the image can lead to random exceptions. This is expensive though. So by
+        /// design, this doesn't happen automatically.
+        /// 
+        /// See the following sites for details about this:
+        /// http://msdn.microsoft.com/en-us/library/system.drawing.image.rotateflip.aspx
+        /// http://social.msdn.microsoft.com/Forums/en-IE/csharplanguage/thread/affa1855-e1ec-476d-bfb1-d0985971f394
+        /// </remarks>
         private int FrameCallbackProc(IntPtr hWnd, ref Win32.VideoHeader VideoHeader)
         {
             // Failsafe
@@ -357,12 +366,20 @@ namespace WebcamLib
             try
             {
                 img = new Bitmap(cx, Math.Abs(cy), (((VideoHeader.dwBytesUsed > 0) ? (VideoHeader.dwBytesUsed - area) : (0)) + cbw), PixelFormat.Format24bppRgb, VideoHeader.lpData);
-                if(cy > 0)
-                    img.RotateFlip(RotateFlipType.RotateNoneFlipY);
             }
             catch(NullReferenceException)
             {
                 return 0;
+            }
+
+            // Rotate the image, if necessary
+            if(cy > 0)
+            {
+                Bitmap bitmap = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+                using(Graphics g = Graphics.FromImage(bitmap))
+                    g.DrawImage(img, 0, 0, new Rectangle(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                img = bitmap;
             }
 
             // Set image
