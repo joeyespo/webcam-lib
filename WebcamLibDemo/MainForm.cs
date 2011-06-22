@@ -41,6 +41,7 @@ namespace WebcamLibDemo
             }
             catch(CamException ex)
             {
+                webcam = null;
                 labelError.Text = "Error: " + ex.Message;
                 labelError.Visible = true;
             }
@@ -53,6 +54,12 @@ namespace WebcamLibDemo
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void captureButton_Click(object sender, System.EventArgs e)
         {
+            if(webcam == null)
+            {
+                MessageBox.Show("There's no webcam device set up.", Text + " Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             previewPictureBox.Image = webcam.GrabFrame();
         }
 
@@ -63,6 +70,12 @@ namespace WebcamLibDemo
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void formatButton_Click(object sender, System.EventArgs e)
         {
+            if(webcam == null)
+            {
+                MessageBox.Show("There's no webcam device set up.", Text + " Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             CamVideoFormat vf;
             webcam.ShowVideoFormatDialog();
             vf = webcam.VideoFormat;
