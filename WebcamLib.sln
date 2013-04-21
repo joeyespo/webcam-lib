@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebcamLibDemo", "WebcamLibDemo\WebcamLibDemo.csproj", "{594A2093-ACB1-4B51-9B79-5B9D2C90C9A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebcamLib", "WebcamLib\WebcamLib.csproj", "{E63C85CF-8F7C-44A4-B3A3-939EF0BC5D9D}"
