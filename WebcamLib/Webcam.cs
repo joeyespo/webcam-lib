@@ -257,6 +257,9 @@ namespace WebcamLib
                 hasDlgVideoFormat = caps.fHasDlgVideoFormat != 0;
                 hasDlgVideoSource = caps.fHasDlgVideoSource != 0;
 
+                // TODO: Uncomment this to test which video formats are available -- remove this when finished testing
+                //ShowVideoFormatDialog();
+
                 // TODO: Get a list of supported video formats and throw an exception if none of them are supported
 
                 // Set desired video format
