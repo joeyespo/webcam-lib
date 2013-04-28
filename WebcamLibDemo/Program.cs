@@ -20,7 +20,7 @@ namespace WebcamLibDemo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            using(MainForm dialog = new MainForm())
+            using (var dialog = new MainForm())
                 Application.Run(dialog);
         }
     }

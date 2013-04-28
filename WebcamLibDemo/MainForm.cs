@@ -36,8 +36,7 @@ namespace WebcamLibDemo
             try
             {
                 webcam = new Webcam(this);
-                webcam.PreviewRate = 66;
-                webcam.SetPreviewCallback(new CamPreviewCallback(PreviewCallback));
+                webcam.SetPreviewCallback(PreviewCallback);
             }
             catch(CamException ex)
             {
@@ -54,7 +53,7 @@ namespace WebcamLibDemo
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void captureButton_Click(object sender, System.EventArgs e)
         {
-            if(webcam == null)
+            if (webcam == null)
             {
                 MessageBox.Show("There's no webcam device set up.", Text + " Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -70,15 +69,13 @@ namespace WebcamLibDemo
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void formatButton_Click(object sender, System.EventArgs e)
         {
-            if(webcam == null)
+            if (webcam == null)
             {
                 MessageBox.Show("There's no webcam device set up.", Text + " Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            CamVideoFormat vf;
             webcam.ShowVideoFormatDialog();
-            vf = webcam.VideoFormat;
         }
 
         /// <summary>
@@ -101,6 +98,6 @@ namespace WebcamLibDemo
             previewPictureBox.Image = img;
         }
 
-        private Webcam webcam = null;
+        private Webcam webcam;
     }
 }

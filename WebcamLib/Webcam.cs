@@ -17,30 +17,13 @@ namespace WebcamLib
         /// <summary>
         /// Initializes a new instance of the <see cref="Webcam"/> class.
         /// </summary>
-        /// <param name="Owner">The owner window.</param>
-        public Webcam(IWin32Window Owner)
-            : this(Owner, null, 66)
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Webcam"/> class.
-        /// </summary>
-        /// <param name="Owner">The owner window.</param>
-        /// <param name="PreviewProc">The method to call when new frames are taken.</param>
-        public Webcam(IWin32Window Owner, CamPreviewCallback PreviewProc)
-            : this(Owner, PreviewProc, 66)
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Webcam"/> class.
-        /// </summary>
-        /// <param name="Owner">The owner window.</param>
-        /// <param name="PreviewProc">The method to call when new frames are taken.</param>
-        /// <param name="PreviewRate">The rate at which to call <paramref name="previewHandler"/>.</param>
-        public Webcam(IWin32Window Owner, CamPreviewCallback PreviewProc, int PreviewRate)
+        /// <param name="owner">The owner window.</param>
+        /// <param name="previewCallback">The method to call when new frames are taken.</param>
+        /// <param name="previewRate">The rate at which to call <paramref name="previewCallback"/>.</param>
+        public Webcam(IWin32Window owner, CamPreviewCallback previewCallback = null, int previewRate = 66)
         {
             // Store owner window
-            ownerWindow = Owner;
+            this.owner = owner;
 
             // Create and set the preview (capture) window
             SetPreviewWindow(CreatePreviewWindow());
@@ -51,9 +34,10 @@ namespace WebcamLib
             previewTimer.Tick += PreviewTick;
 
             // Init variables
-            this.PreviewRate = PreviewRate;
-            this.SetPreviewCallback(PreviewProc);
+            PreviewRate = previewRate;
+            SetPreviewCallback(previewCallback);
         }
+
         ~Webcam()
         {
             Dispose();
@@ -66,13 +50,7 @@ namespace WebcamLib
         /// <summary>
         /// Gets the value indicating whether the class has been disposed of.
         /// </summary>
-        public bool IsDisposed
-        {
-            get
-            {
-                return isDisposed;
-            }
-        }
+        public bool IsDisposed { get; private set; }
 
         /// <summary>
         /// The rate in of capture when in preview mode (in miliseconds).
@@ -97,26 +75,22 @@ namespace WebcamLib
             get
             {
                 CamVideoFormat res;
-                int size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
-                IntPtr lpVideoFormat = Marshal.AllocHGlobal(size);
+                var size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
+                var lpVideoFormat = Marshal.AllocHGlobal(size);
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
                 res = (CamVideoFormat)Marshal.PtrToStructure(lpVideoFormat, typeof(CamVideoFormat));
                 Marshal.FreeHGlobal(lpVideoFormat);
-                lpVideoFormat = IntPtr.Zero;
                 return res;
             }
 
             set
             {
-                // TODO: Get to work
-
-                int size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
-                IntPtr lpVideoFormat = Marshal.AllocHGlobal(size);
+                var size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
+                var lpVideoFormat = Marshal.AllocHGlobal(size);
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
                 Marshal.StructureToPtr(value, lpVideoFormat, true);
-                int i = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_VIDEOFORMAT, size, lpVideoFormat);
+                Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_VIDEOFORMAT, size, lpVideoFormat);
                 Marshal.FreeHGlobal(lpVideoFormat);
-                lpVideoFormat = IntPtr.Zero;
             }
         }
 
@@ -130,31 +104,16 @@ namespace WebcamLib
         {
             get
             {
-                int size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
-                IntPtr lpVideoFormat = Marshal.AllocHGlobal(size);
-                Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
-
-                int cx = Marshal.ReadInt32(lpVideoFormat, 4);
-                int cy = Marshal.ReadInt32(lpVideoFormat, 8);
-
-                Marshal.FreeHGlobal(lpVideoFormat);
-                lpVideoFormat = IntPtr.Zero;
-                return new Size(cx, cy);
+                var format = VideoFormat;
+                return new Size(format.biWidth, format.biHeight);
             }
 
             set
             {
-                int size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
-                IntPtr lpVideoFormat = Marshal.AllocHGlobal(size);
-                Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
-
-                Marshal.WriteInt32(lpVideoFormat, 4, value.Width);
-                Marshal.WriteInt32(lpVideoFormat, 8, value.Height);
-
-                Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_VIDEOFORMAT, size, lpVideoFormat);
-
-                Marshal.FreeHGlobal(lpVideoFormat);
-                lpVideoFormat = IntPtr.Zero;
+                var format = VideoFormat;
+                format.biWidth = value.Width;
+                format.biHeight = value.Height;
+                VideoFormat = format;
             }
         }
 
@@ -191,13 +150,13 @@ namespace WebcamLib
         /// </summary>
         public void Dispose()
         {
-            if(isDisposed)
+            if (IsDisposed)
                 return;
+
+            IsDisposed = true;
 
             // Destroy preview window
             DestroyPreviewWindow();
-
-            isDisposed = true;
             GC.SuppressFinalize(this);
         }
 
@@ -207,7 +166,7 @@ namespace WebcamLib
         /// <returns>true if the dialog was successfully shown; otherwise, false.</returns>
         public bool ShowVideoDisplayDialog()
         {
-            return (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEODISPLAY, 0, 0) != 0);
+            return Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEODISPLAY, 0, 0) != 0;
         }
 
         /// <summary>
@@ -216,7 +175,7 @@ namespace WebcamLib
         /// <returns>true if the dialog was successfully shown; otherwise, false.</returns>
         public bool ShowVideoFormatDialog()
         {
-            if(Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEOFORMAT, 0, 0) == 0)
+            if (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEOFORMAT, 0, 0) == 0)
                 return false;
 
             // TODO: Check and update internal format (ex: I420)
@@ -230,7 +189,7 @@ namespace WebcamLib
         /// <returns>true if the dialog was successfully shown; otherwise, false.</returns>
         public bool ShowVideoSourceDialog()
         {
-            return (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEOSOURCE, 0, 0) != 0);
+            return Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DLG_VIDEOSOURCE, 0, 0) != 0;
         }
 
         /// <summary>
@@ -242,12 +201,12 @@ namespace WebcamLib
 
             // Grab image
             localGrab = true;
-            if(Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GRAB_FRAME_NOSTOP, 0, 0) == 0)
+            if (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GRAB_FRAME_NOSTOP, 0, 0) == 0)
                 return null;
             localGrab = false;
 
             // Return image and clear internal image
-            Image res = frameImage;
+            var res = frameImage;
             frameImage = null;
             return res;
         }
@@ -255,9 +214,9 @@ namespace WebcamLib
         /// <summary>
         /// Sets the preview callback (set to null to disable preview mode).
         /// </summary>
-        public void SetPreviewCallback(CamPreviewCallback PreviewProc)
+        public void SetPreviewCallback(CamPreviewCallback previewCallback)
         {
-            previewHandler = PreviewProc;
+            previewHandler = previewCallback;
             previewTimer.Enabled = (previewHandler != null);
         }
 
@@ -266,59 +225,58 @@ namespace WebcamLib
         /// <summary>
         /// Creates the preview window.
         /// </summary>
-        private IntPtr CreatePreviewWindow()
+        IntPtr CreatePreviewWindow()
         {
-            return Win32.CapCreateCaptureWindow("WebcamLib Window", 0x00000000, 0, 0, 320, 240, ownerWindow.Handle.ToInt32(), 0);
+            return Win32.CapCreateCaptureWindow("WebcamLib Window", 0x00000000, 0, 0, 320, 240, owner.Handle.ToInt32(), 0);
         }
 
         /// <summary>
         /// Sets the preview window.
         /// </summary>
-        private void SetPreviewWindow(IntPtr windowHandle)
+        void SetPreviewWindow(IntPtr windowHandle)
         {
             // Set capture window
             camWindowHandle = windowHandle;
 
+            var success = false;
             try
             {
                 // Connect to the capture device
-                if(Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DRIVER_CONNECT, 0, 0) == 0)
+                if (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DRIVER_CONNECT, 0, 0) == 0)
                     throw new CamException("Could not connect to device.");
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_PREVIEW, 0, 0);
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_SCALE, 0, 0);
 
                 // Get device capabilities
-                Win32.CapDriverCaps caps = new Win32.CapDriverCaps();
+                var caps = new Win32.CapDriverCaps();
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DRIVER_GET_CAPS, Marshal.SizeOf(caps), ref caps);
                 hasDlgVideoDisplay = caps.fHasDlgVideoDisplay != 0;
                 hasDlgVideoFormat = caps.fHasDlgVideoFormat != 0;
                 hasDlgVideoSource = caps.fHasDlgVideoSource != 0;
 
                 // Set callbacks
-                frameCallback = new Win32.FrameCallback(FrameCallbackProc);
-                if(Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_CALLBACK_FRAME, 0, frameCallback) == 0)
+                frameCallback = FrameCallbackProc;
+                if (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_CALLBACK_FRAME, 0, frameCallback) == 0)
                     throw new CamException("Could not set internal device callback.");
-            }
-            catch
-            {
-                // Clean up
-                Dispose();
 
-                // Forward error
-                throw;
+                success = true;
+            }
+            finally
+            {
+                if (!success)
+                    Dispose();
             }
         }
 
         /// <summary>
         /// Destroys the preview window.
         /// </summary>
-        private void DestroyPreviewWindow()
+        void DestroyPreviewWindow()
         {
             // Clean up capture window
-            if(camWindowHandle != IntPtr.Zero)
+            if (camWindowHandle != IntPtr.Zero)
             {
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_DRIVER_DISCONNECT, 0, 0);
-
                 Win32.DestroyWindow(camWindowHandle);
                 camWindowHandle = IntPtr.Zero;
             }
@@ -338,34 +296,26 @@ namespace WebcamLib
         /// http://msdn.microsoft.com/en-us/library/system.drawing.image.rotateflip.aspx
         /// http://social.msdn.microsoft.com/Forums/en-IE/csharplanguage/thread/affa1855-e1ec-476d-bfb1-d0985971f394
         /// </remarks>
-        private int FrameCallbackProc(IntPtr hWnd, ref Win32.VideoHeader VideoHeader)
+        int FrameCallbackProc(IntPtr hWnd, ref Win32.VideoHeader VideoHeader)
         {
             // Failsafe
-            if(!localGrab)
+            if (!localGrab)
                 return 1;
 
             // Failsafe .. return False if bad
-            if(VideoHeader.lpData == IntPtr.Zero)
+            if (VideoHeader.lpData == IntPtr.Zero)
                 return 0;
 
             // Get image size and dimensions
-            int size = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, 0, 0);
-            IntPtr lpVideoFormat = Marshal.AllocHGlobal(size);
-            Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
-
-            int cx = Marshal.ReadInt32(lpVideoFormat, 4);
-            int cy = Marshal.ReadInt32(lpVideoFormat, 8);
-            int cbw = cx * 3;
-            int area = (cbw * Math.Abs(cy));
-
-            Marshal.FreeHGlobal(lpVideoFormat);
-            lpVideoFormat = IntPtr.Zero;
+            var format = VideoFormat;
+            var cbw = format.biWidth * 3;
+            var area = (cbw * Math.Abs(format.biHeight));
 
             // Create normal bitmap
-            Image img = null;
+            Image img;
             try
             {
-                img = new Bitmap(cx, Math.Abs(cy), (((VideoHeader.dwBytesUsed > 0) ? (VideoHeader.dwBytesUsed - area) : (0)) + cbw), PixelFormat.Format24bppRgb, VideoHeader.lpData);
+                img = new Bitmap(format.biWidth, Math.Abs(format.biHeight), (((VideoHeader.dwBytesUsed > 0) ? (VideoHeader.dwBytesUsed - area) : (0)) + cbw), PixelFormat.Format24bppRgb, VideoHeader.lpData);
             }
             catch(NullReferenceException)
             {
@@ -373,10 +323,10 @@ namespace WebcamLib
             }
 
             // Rotate the image, if necessary
-            if(cy > 0)
+            if (format.biHeight > 0)
             {
                 Bitmap bitmap = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-                using(Graphics g = Graphics.FromImage(bitmap))
+                using (Graphics g = Graphics.FromImage(bitmap))
                     g.DrawImage(img, 0, 0, new Rectangle(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
                 bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
                 img = bitmap;
@@ -391,10 +341,10 @@ namespace WebcamLib
         /// <summary>
         /// Grab the next frame.
         /// </summary>
-        private void PreviewTick(object sender, System.EventArgs e)
+        void PreviewTick(object sender, EventArgs e)
         {
             // Failsafe
-            if(previewHandler == null)
+            if (previewHandler == null)
             {
                 previewTimer.Enabled = false;
                 return;
@@ -404,17 +354,16 @@ namespace WebcamLib
             previewHandler(GrabFrame());
         }
 
-        private bool isDisposed = false;
-        private IWin32Window ownerWindow;
-        private IntPtr camWindowHandle = IntPtr.Zero;
-        private bool hasDlgVideoDisplay = false;
-        private bool hasDlgVideoFormat = false;
-        private bool hasDlgVideoSource = false;
-        private bool localGrab = false;
-        private Image frameImage = null;
+        readonly IWin32Window owner;
+        IntPtr camWindowHandle = IntPtr.Zero;
+        bool hasDlgVideoDisplay;
+        bool hasDlgVideoFormat;
+        bool hasDlgVideoSource;
+        bool localGrab;
+        Image frameImage;
         // Required to bypass a GC
-        private Win32.FrameCallback frameCallback;
-        private CamPreviewCallback previewHandler;
-        private Timer previewTimer;
+        Win32.FrameCallback frameCallback;
+        CamPreviewCallback previewHandler;
+        Timer previewTimer;
     }
 }
