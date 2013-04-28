@@ -53,7 +53,7 @@ namespace WebcamLib
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// The rate in of capture when in preview mode (in miliseconds).
+        /// The rate in of capture when in preview mode (in milliseconds).
         /// </summary>
         public int PreviewRate
         {
