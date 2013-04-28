@@ -89,8 +89,10 @@ namespace WebcamLib
                 var lpVideoFormat = Marshal.AllocHGlobal(size);
                 Win32.SendMessage(camWindowHandle, Win32.WM_CAP_GET_VIDEOFORMAT, size, lpVideoFormat);
                 Marshal.StructureToPtr(value, lpVideoFormat, true);
-                Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_VIDEOFORMAT, size, lpVideoFormat);
+                var result = Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_VIDEOFORMAT, size, lpVideoFormat);
                 Marshal.FreeHGlobal(lpVideoFormat);
+                if (result == 0)
+                    throw new CamException("Could not set the device format.");
             }
         }
 
