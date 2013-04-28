@@ -256,6 +256,12 @@ namespace WebcamLib
                 hasDlgVideoFormat = caps.fHasDlgVideoFormat != 0;
                 hasDlgVideoSource = caps.fHasDlgVideoSource != 0;
 
+                // Set desired video format
+                var format = VideoFormat;
+                format.biCompression = 0;
+                format.biBitCount = 24;
+                VideoFormat = format;
+
                 // Set callbacks
                 frameCallback = FrameCallbackProc;
                 if (Win32.SendMessage(camWindowHandle, Win32.WM_CAP_SET_CALLBACK_FRAME, 0, frameCallback) == 0)
