@@ -229,6 +229,7 @@ namespace WebcamLib
         /// </summary>
         IntPtr CreatePreviewWindow()
         {
+            // TODO: CapDlgVideoDisplay (?)
             return Win32.CapCreateCaptureWindow("WebcamLib Window", 0x00000000, 0, 0, 320, 240, owner.Handle.ToInt32(), 0);
         }
 
@@ -255,6 +256,8 @@ namespace WebcamLib
                 hasDlgVideoDisplay = caps.fHasDlgVideoDisplay != 0;
                 hasDlgVideoFormat = caps.fHasDlgVideoFormat != 0;
                 hasDlgVideoSource = caps.fHasDlgVideoSource != 0;
+
+                // TODO: Get a list of supported video formats and throw an exception if none of them are supported
 
                 // Set desired video format
                 var format = VideoFormat;
@@ -318,6 +321,8 @@ namespace WebcamLib
             var format = VideoFormat;
             var cbw = format.biWidth * 3;
             var area = (cbw * Math.Abs(format.biHeight));
+
+            // TODO: Handle decompression of different video formats
 
             // Create normal bitmap
             Image img;
